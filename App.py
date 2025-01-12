@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import scrolledtext, messagebox
+from tkinter import scrolledtext, messagebox, filedialog
 import asyncio
 from checker import GrammarChecker
 from utils import get_error_description
@@ -22,6 +22,14 @@ class GrammarCheckerApp:
         self.root.title("Проверка грамматики и орфографии")
         self.root.geometry("600x400")
 
+        # Меню
+        self.menu_bar = tk.Menu(root)
+        self.file_menu = tk.Menu(self.menu_bar, tearoff=0)
+        self.file_menu.add_command(label="Открыть файл", command=self.open_file)
+        self.file_menu.add_command(label="Сохранить результаты", command=self.save_results)
+        self.menu_bar.add_cascade(label="Файл", menu=self.file_menu)
+        self.root.config(menu=self.menu_bar)
+
         # Поле для ввода текста
         self.input_label = tk.Label(root, text="Введите текст для проверки:")
         self.input_label.pack(pady=5)
@@ -43,6 +51,25 @@ class GrammarCheckerApp:
         # Кнопка для выхода из приложения
         self.exit_button = tk.Button(root, text="Выход", command=self.exit_app)
         self.exit_button.pack(pady=10)
+
+    def open_file(self) -> None:
+        """
+        Открывает текстовый файл и загружает его содержимое в поле ввода.
+        """
+        file_path = filedialog.askopenfilename(filetypes=[("Текстовые файлы", "*.txt")])
+        if file_path:
+            with open(file_path, "r", encoding="utf-8") as file:
+                self.input_text.delete("1.0", tk.END)
+                self.input_text.insert(tk.END, file.read())
+
+    def save_results(self) -> None:
+        """
+        Сохраняет результаты проверки в файл.
+        """
+        file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Текстовые файлы", "*.txt")])
+        if file_path:
+            with open(file_path, "w", encoding="utf-8") as file:
+                file.write(self.output_text.get("1.0", tk.END))
 
     def start_check_text(self) -> None:
         """
